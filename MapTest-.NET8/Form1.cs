@@ -19,7 +19,7 @@ namespace MapTest_.NET8
         private void Form1_Load(object sender, EventArgs e)
         {
             Draw_Japan();
-            //Draw_World();
+            Draw_World();
         }
 
         /// <summary>
@@ -36,44 +36,44 @@ namespace MapTest_.NET8
             var mapImg = new Bitmap(config.MapSize * 16 / 9, config.MapSize);
             var zoomW = config.MapSize / (config.LonEnd - config.LonSta);
             var zoomH = config.MapSize / (config.LatEnd - config.LatSta);
-            var json = JsonNode.Parse(File.ReadAllText("map-world.geojson"));
+            var mapjson = JsonNode.Parse(File.ReadAllText("map-world.geojson"));
             var g = Graphics.FromImage(mapImg);
             g.Clear(color.Map.Sea);
-            var maps = new GraphicsPath();
-            maps.StartFigure();
-            foreach (var json_1 in json["features"].AsArray())
+            var gPath = new GraphicsPath();
+            gPath.StartFigure();
+            foreach (var mapjson_feature in mapjson["features"].AsArray())
             {
-                if (json_1["geometry"] == null)
+                if (mapjson_feature["geometry"] == null)
                     continue;
-                var points = json_1["geometry"]["coordinates"][0].AsArray().Select(json_2 => new Point((int)(((double)json_2[0] - config.LonSta) * zoomW), (int)((config.LatEnd - (double)json_2[1]) * zoomH))).ToArray();
+                var points = mapjson_feature["geometry"]["coordinates"][0].AsArray().Select(mapjson_coordinates => new Point((int)(((double)mapjson_coordinates[0] - config.LonSta) * zoomW), (int)((config.LatEnd - (double)mapjson_coordinates[1]) * zoomH))).ToArray();
                 if (points.Length > 2)
-                    maps.AddPolygon(points);
+                    gPath.AddPolygon(points);
             }
-            g.FillPath(new SolidBrush(color.Map.World), maps);
+            g.FillPath(new SolidBrush(color.Map.World), gPath);
 
-            json = JsonNode.Parse(File.ReadAllText("map-jp.geojson"));
-            maps.Reset();
-            maps.StartFigure();
-            foreach (var json_1 in json["features"].AsArray())
+            mapjson = JsonNode.Parse(File.ReadAllText("map-jp.geojson"));
+            gPath.Reset();
+            gPath.StartFigure();
+            foreach (var mapjson_features in mapjson["features"].AsArray())
             {
-                if ((string?)json_1["geometry"]["type"] == "Polygon")
+                if ((string?)mapjson_features["geometry"]["type"] == "Polygon")
                 {
-                    var points = json_1["geometry"]["coordinates"][0].AsArray().Select(json_2 => new Point((int)(((double)json_2[0] - config.LonSta) * zoomW), (int)((config.LatEnd - (double)json_2[1]) * zoomH))).ToArray();
+                    var points = mapjson_features["geometry"]["coordinates"][0].AsArray().Select(mapjson_coordinates => new Point((int)(((double)mapjson_coordinates[0] - config.LonSta) * zoomW), (int)((config.LatEnd - (double)mapjson_coordinates[1]) * zoomH))).ToArray();
                     if (points.Length > 2)
-                        maps.AddPolygon(points);
+                        gPath.AddPolygon(points);
                 }
                 else
                 {
-                    foreach (var json_2 in json_1["geometry"]["coordinates"].AsArray())
+                    foreach (var mapjson_coordinateses in mapjson_features["geometry"]["coordinates"].AsArray())
                     {
-                        var points = json_2[0].AsArray().Select(json_3 => new Point((int)(((double)json_3[0] - config.LonSta) * zoomW), (int)((config.LatEnd - (double)json_3[1]) * zoomH))).ToArray();
+                        var points = mapjson_coordinateses[0].AsArray().Select(mapjson_coordinates => new Point((int)(((double)mapjson_coordinates[0] - config.LonSta) * zoomW), (int)((config.LatEnd - (double)mapjson_coordinates[1]) * zoomH))).ToArray();
                         if (points.Length > 2)
-                            maps.AddPolygon(points);
+                            gPath.AddPolygon(points);
                     }
                 }
             }
-            g.FillPath(new SolidBrush(color.Map.Japan), maps);
-            g.DrawPath(new Pen(color.Map.Japan_Border, config.MapSize / 1080f), maps);
+            g.FillPath(new SolidBrush(color.Map.Japan), gPath);
+            g.DrawPath(new Pen(color.Map.Japan_Border, config.MapSize / 1080f), gPath);
             var mdsize = g.MeasureString("地図データ:気象庁, Natural Earth", new Font(font, config.MapSize / 28, GraphicsUnit.Pixel));
             g.DrawString("地図データ:気象庁, Natural Earth", new Font(font, config.MapSize / 28, GraphicsUnit.Pixel), new SolidBrush(color.Text), config.MapSize - mdsize.Width, config.MapSize - mdsize.Height);
             g.Dispose();
@@ -90,31 +90,31 @@ namespace MapTest_.NET8
             var mapImg = new Bitmap(config.MapSize * 16 / 9, config.MapSize);
             var zoomW = config.MapSize / (config.LonEnd - config.LonSta);
             var zoomH = config.MapSize / (config.LatEnd - config.LatSta);
-            var json = JsonNode.Parse(File.ReadAllText("map-jp.geojson"));
+            var mapjson = JsonNode.Parse(File.ReadAllText("map-jp.geojson"));
             var g = Graphics.FromImage(mapImg);
             g.Clear(color.Map.Sea);
-            var maps = new GraphicsPath();
-            maps.StartFigure();
-            foreach (var json_1 in json["features"].AsArray())
+            var gPath = new GraphicsPath();
+            gPath.StartFigure();
+            foreach (var mapjson_features in mapjson["features"].AsArray())
             {
-                if ((string?)json_1["geometry"]["type"] == "Polygon")
+                if ((string?)mapjson_features["geometry"]["type"] == "Polygon")
                 {
-                    var points = json_1["geometry"]["coordinates"][0].AsArray().Select(json_2 => new Point((int)(((double)json_2[0] - config.LonSta) * zoomW), (int)((config.LatEnd - (double)json_2[1]) * zoomH))).ToArray();
+                    var points = mapjson_features["geometry"]["coordinates"][0].AsArray().Select(mapjson_coordinates => new Point((int)(((double)mapjson_coordinates[0] - config.LonSta) * zoomW), (int)((config.LatEnd - (double)mapjson_coordinates[1]) * zoomH))).ToArray();
                     if (points.Length > 2)
-                        maps.AddPolygon(points);
+                        gPath.AddPolygon(points);
                 }
                 else
                 {
-                    foreach (var json_2 in json_1["geometry"]["coordinates"].AsArray())
+                    foreach (var mapjson_coordinateses in mapjson_features["geometry"]["coordinates"].AsArray())
                     {
-                        var points = json_2[0].AsArray().Select(json_3 => new Point((int)(((double)json_3[0] - config.LonSta) * zoomW), (int)((config.LatEnd - (double)json_3[1]) * zoomH))).ToArray();
+                        var points = mapjson_coordinateses[0].AsArray().Select(mapjson_coordinates => new Point((int)(((double)mapjson_coordinates[0] - config.LonSta) * zoomW), (int)((config.LatEnd - (double)mapjson_coordinates[1]) * zoomH))).ToArray();
                         if (points.Length > 2)
-                            maps.AddPolygon(points);
+                            gPath.AddPolygon(points);
                     }
                 }
             }
-            g.FillPath(new SolidBrush(color.Map.Japan), maps);
-            g.DrawPath(new Pen(color.Map.Japan_Border, config.MapSize / 1080f), maps);
+            g.FillPath(new SolidBrush(color.Map.Japan), gPath);
+            g.DrawPath(new Pen(color.Map.Japan_Border, config.MapSize / 1080f), gPath);
             var mdsize = g.MeasureString("地図データ:気象庁", new Font(font, config.MapSize / 28, GraphicsUnit.Pixel));
             g.DrawString("地図データ:気象庁", new Font(font, config.MapSize / 28, GraphicsUnit.Pixel), new SolidBrush(color.Text), config.MapSize - mdsize.Width, config.MapSize - mdsize.Height);
             g.Dispose();
