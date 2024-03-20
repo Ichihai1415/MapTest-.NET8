@@ -1,8 +1,6 @@
 using System.Drawing.Drawing2D;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Drawing;
 using System.Drawing.Text;
+using System.Text.Json.Nodes;
 
 namespace MapTest_.NET8
 {
@@ -18,8 +16,8 @@ namespace MapTest_.NET8
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            Draw_Japan();
-            Draw_World();
+            BackgroundImage = Draw_Japan();
+            BackgroundImage = Draw_World();
         }
 
         /// <summary>
@@ -31,7 +29,7 @@ namespace MapTest_.NET8
 
 #pragma warning disable CS8602 // null 参照の可能性があるものの逆参照です。
 #pragma warning disable CS8604 // Null 参照引数の可能性があります。
-        public void Draw_World()
+        public static Bitmap Draw_World()
         {
             var mapImg = new Bitmap(config.MapSize * 16 / 9, config.MapSize);
             var zoomW = config.MapSize / (config.LonEnd - config.LonSta);
@@ -45,7 +43,7 @@ namespace MapTest_.NET8
             {
                 if (mapjson_feature["geometry"] == null)
                     continue;
-                var points = mapjson_feature["geometry"]["coordinates"][0].AsArray().Select(mapjson_coordinates => new Point((int)(((double)mapjson_coordinates[0] - config.LonSta) * zoomW), (int)((config.LatEnd - (double)mapjson_coordinates[1]) * zoomH))).ToArray();
+                var points = mapjson_feature["geometry"]["coordinates"][0].AsArray().Select(mapjson_coordinate => new Point((int)(((double)mapjson_coordinate[0] - config.LonSta) * zoomW), (int)((config.LatEnd - (double)mapjson_coordinate[1]) * zoomH))).ToArray();
                 if (points.Length > 2)
                     gPath.AddPolygon(points);
             }
@@ -54,19 +52,19 @@ namespace MapTest_.NET8
             mapjson = JsonNode.Parse(File.ReadAllText("map-jp.geojson"));
             gPath.Reset();
             gPath.StartFigure();
-            foreach (var mapjson_features in mapjson["features"].AsArray())
+            foreach (var mapjson_feature in mapjson["features"].AsArray())
             {
-                if ((string?)mapjson_features["geometry"]["type"] == "Polygon")
+                if ((string?)mapjson_feature["geometry"]["type"] == "Polygon")
                 {
-                    var points = mapjson_features["geometry"]["coordinates"][0].AsArray().Select(mapjson_coordinates => new Point((int)(((double)mapjson_coordinates[0] - config.LonSta) * zoomW), (int)((config.LatEnd - (double)mapjson_coordinates[1]) * zoomH))).ToArray();
+                    var points = mapjson_feature["geometry"]["coordinates"][0].AsArray().Select(mapjson_coordinate => new Point((int)(((double)mapjson_coordinate[0] - config.LonSta) * zoomW), (int)((config.LatEnd - (double)mapjson_coordinate[1]) * zoomH))).ToArray();
                     if (points.Length > 2)
                         gPath.AddPolygon(points);
                 }
                 else
                 {
-                    foreach (var mapjson_coordinateses in mapjson_features["geometry"]["coordinates"].AsArray())
+                    foreach (var mapjson_coordinates in mapjson_feature["geometry"]["coordinates"].AsArray())
                     {
-                        var points = mapjson_coordinateses[0].AsArray().Select(mapjson_coordinates => new Point((int)(((double)mapjson_coordinates[0] - config.LonSta) * zoomW), (int)((config.LatEnd - (double)mapjson_coordinates[1]) * zoomH))).ToArray();
+                        var points = mapjson_coordinates[0].AsArray().Select(mapjson_coordinate => new Point((int)(((double)mapjson_coordinate[0] - config.LonSta) * zoomW), (int)((config.LatEnd - (double)mapjson_coordinate[1]) * zoomH))).ToArray();
                         if (points.Length > 2)
                             gPath.AddPolygon(points);
                     }
@@ -77,7 +75,7 @@ namespace MapTest_.NET8
             var mdsize = g.MeasureString("地図データ:気象庁, Natural Earth", new Font(font, config.MapSize / 28, GraphicsUnit.Pixel));
             g.DrawString("地図データ:気象庁, Natural Earth", new Font(font, config.MapSize / 28, GraphicsUnit.Pixel), new SolidBrush(color.Text), config.MapSize - mdsize.Width, config.MapSize - mdsize.Height);
             g.Dispose();
-            BackgroundImage = mapImg;
+            return mapImg;
         }
 #pragma warning restore CS8602 // null 参照の可能性があるものの逆参照です。
 #pragma warning restore CS8604 // Null 参照引数の可能性があります。
@@ -85,7 +83,7 @@ namespace MapTest_.NET8
 
 #pragma warning disable CS8602 // null 参照の可能性があるものの逆参照です。
 #pragma warning disable CS8604 // Null 参照引数の可能性があります。
-        public void Draw_Japan()
+        public static Bitmap Draw_Japan()
         {
             var mapImg = new Bitmap(config.MapSize * 16 / 9, config.MapSize);
             var zoomW = config.MapSize / (config.LonEnd - config.LonSta);
@@ -95,19 +93,19 @@ namespace MapTest_.NET8
             g.Clear(color.Map.Sea);
             var gPath = new GraphicsPath();
             gPath.StartFigure();
-            foreach (var mapjson_features in mapjson["features"].AsArray())
+            foreach (var mapjson_feature in mapjson["features"].AsArray())
             {
-                if ((string?)mapjson_features["geometry"]["type"] == "Polygon")
+                if ((string?)mapjson_feature["geometry"]["type"] == "Polygon")
                 {
-                    var points = mapjson_features["geometry"]["coordinates"][0].AsArray().Select(mapjson_coordinates => new Point((int)(((double)mapjson_coordinates[0] - config.LonSta) * zoomW), (int)((config.LatEnd - (double)mapjson_coordinates[1]) * zoomH))).ToArray();
+                    var points = mapjson_feature["geometry"]["coordinates"][0].AsArray().Select(mapjson_coordinate => new Point((int)(((double)mapjson_coordinate[0] - config.LonSta) * zoomW), (int)((config.LatEnd - (double)mapjson_coordinate[1]) * zoomH))).ToArray();
                     if (points.Length > 2)
                         gPath.AddPolygon(points);
                 }
                 else
                 {
-                    foreach (var mapjson_coordinateses in mapjson_features["geometry"]["coordinates"].AsArray())
+                    foreach (var mapjson_coordinates in mapjson_feature["geometry"]["coordinates"].AsArray())
                     {
-                        var points = mapjson_coordinateses[0].AsArray().Select(mapjson_coordinates => new Point((int)(((double)mapjson_coordinates[0] - config.LonSta) * zoomW), (int)((config.LatEnd - (double)mapjson_coordinates[1]) * zoomH))).ToArray();
+                        var points = mapjson_coordinates[0].AsArray().Select(mapjson_coordinate => new Point((int)(((double)mapjson_coordinate[0] - config.LonSta) * zoomW), (int)((config.LatEnd - (double)mapjson_coordinate[1]) * zoomH))).ToArray();
                         if (points.Length > 2)
                             gPath.AddPolygon(points);
                     }
@@ -118,7 +116,7 @@ namespace MapTest_.NET8
             var mdsize = g.MeasureString("地図データ:気象庁", new Font(font, config.MapSize / 28, GraphicsUnit.Pixel));
             g.DrawString("地図データ:気象庁", new Font(font, config.MapSize / 28, GraphicsUnit.Pixel), new SolidBrush(color.Text), config.MapSize - mdsize.Width, config.MapSize - mdsize.Height);
             g.Dispose();
-            BackgroundImage = mapImg;
+            return mapImg;
         }
 #pragma warning restore CS8602 // null 参照の可能性があるものの逆参照です。
 #pragma warning restore CS8604 // Null 参照引数の可能性があります。
